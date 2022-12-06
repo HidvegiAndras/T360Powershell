@@ -8,7 +8,7 @@ Get-Service | Restart-Service
 Get-Service winrm* | Get-Member
 (Get-Service).Status
 
-# Form·z·sok
+# Form√°z√°sok
 
 Get-Service | Format-List
 Get-Service | Format-Table -AutoSize
@@ -27,21 +27,21 @@ $szervizlista = Get-Service | Select Name,Status, StartType
 
 $szervizlista | Get-Member
 
-# RendezÈs
+# Rendez√©s
 
 $szervizlista | Sort-Object -Property Name -Descending 
 
 $futoapp | Sort-Object -Property Id, ProcessName
 
 
-# CsoportosÌt·s
+# Csoportos√≠t√°s
 
 $szervizlista | Sort-Object -Property Status, Name | Format-Table -GroupBy Status
 
 $futoapp | Format-Table -GroupBy ProcessName
 
 
-# MÈrtÈkek
+# M√©rt√©kek
 
 $futoapp | Measure-Object -Property CPU, WS -Sum -Average -Maximum -Minimum
 
@@ -53,7 +53,7 @@ $futoapp | Sort-Object CPU -Descending | Select-Object -First 10 -Skip 3
 
 Get-ADUser -Filter * -Property Department | Sort-Object -Property Department | Select-Object -Unique
 
-# Metodusok haszn·lata
+# Metodusok haszn√°lata
 
 (Get-Date).AddDays(3)
 $most = Get-Date
@@ -65,9 +65,9 @@ $most.DayOfYear
 
 Get-Date | Select-Object -Property DayOfYear | fl
 
-# Select-object sz·mÌtott mezıkkel
+# Select-object sz√°m√≠tott mez√µkkel
 
-$hashtabla = @{name='name ÈrtÈke';
+$hashtabla = @{name='name √©rt√©ke';
                datum=Get-Date}
 
 $hashtabla.ertek
@@ -77,7 +77,7 @@ Get-Process | Select-Object Name, ID, VM
 
 
 #$PSItem alias $_
-# lista aktu·lis eleme a feldolgoz·s sor·n
+# lista aktu√°lis eleme a feldolgoz√°s sor√°n
 
 
 @{n='Virtual Memory';e={$PSItem.VM}}
@@ -100,7 +100,7 @@ Get-Aduser -Filter * -Properties WhenCreated | Sort-Object WhenCreated -Descendi
 Get-Aduser -Filter * -Properties WhenCreated | Sort-Object WhenCreated -Descending | `
  Select-Object Name, SamAccountName, @{n='Account age (days)';e={(New-TimeSpan -Start $PSItem.WhenCreated).Days}} -First 2
 
-# F·jl kezelÈs
+# F√°jl kezel√©s
 
 Get-Location
 Set-Location C:\Windows
@@ -115,7 +115,7 @@ Get-ChildItem $subdir
 $fajllista = gci 'C:\Windows\System32\drivers\UMDF' -Recurse
 $fajllista | Select-Object FullName, LastWriteTime, CreationTime
 
-# Oper·torok
+# Oper√°torok
 
 = < > == 
 
@@ -138,3 +138,66 @@ Get-ChildItem -Path C:\ -Recurse | Where-Object {$PSItem.LastWriteTime -lt $limi
 
 $fajllista | Where-Object {$PSItem.Length -gt 100000} | Select-Object FullName, @{Name="KBytes";Expression={ "{0:N0}" -f ($PSItem.Length / 1KB)}}
 
+$limit = (Get-Date).AddDays(-15)
+Get-ChildItem -Recurse | Where-Object {$PSItem.LastWriteTime -lt $limit}
+Get-ChildItem -Path C:\ -Recurse | Where-Object {$PSItem.LastWriteTime -lt $limit}
+
+$fajllista | Where-Object {$PSItem.Length -gt 100000} | Select-Object FullName, @{Name="KBytes";Expression={ "{0:N0}" -f ($PSItem.Length / 1KB)}} | Get-Member
+$fajllista | Where-Object {$PSItem.Length -gt 100000} | Copy-Item -Destination './Backup'
+
+# Pipline byProperty Name
+
+Get-ADComputer -Filter * | Select Name
+Get-Process -ComputerName Lon-svr1
+Get-ADComputer -Filter * | Select @{n='ComputerName';e={$PSItem.Name}} | Get-Process | Select-Object ProcessName, CPU | Out-File C:\Backup\query1.txt
+Get-Help Stop-Process -full
+
+Get-Process | Where-Object {$_.ProcessName -eq 'Notepad'} 
+Get-Process -Name notepad | Stop-Process
+
+Get-Process -ComputerName 172.16.0.11
+(Get-ADComputer -Filter * | Select-Object -ExpandProperty Name)
+Get-Process -ComputerName (Get-ADComputer -Filter * | Select-Object -Property Name)
+Get-Process -ComputerName (Get-ADComputer -Filter * | Select-Object -ExpandProperty Name)
+Get-Aduser Lara  -Properties MemberOf | Select-Object -ExpandProperty MemberOf | Get-ADGroup
+
+Get-ADGroup "SupportTeam"
+Get-ADGroup -filter * | Where-Object {$_.name -eq "SupportTeam"}
+
+(Get-ADUser -Filter { City -eq "London" })
+New-ADGroup "London Users" -GroupScope Universal
+Get-ADGroup "London Users"
+
+Get-ADGroup "London Users" | Get-ADGroupMember
+Get-ADGroup "London Users" | ADD-ADGroupMember -Members (Get-ADUser -Filter { City -eq "London" })
+
+
+# Foreach-Object
+
+$users = Get-ADUser -filter *
+$users.name
+$users.samaccountname
+
+Write-Host "vvalami"
+$users | ForEach-Object {($PSItem.name).ToUpper()}
+$users | ForEach-Object { Write-Host "A felhaszn√°l√≥ neve: " $PSItem.Name}
+1..10 | ForEach-Object {$PsItem; $PSItem *2; $PSItem * 3}
+
+
+# Eredm√©nyek ki√≠r√°sa fileokba
+
+$fajl = 'C:\Backup\query2.txt'
+$fajl2 = 'C:\Backup\query2.html'
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled | Out-File $fajl
+
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled | ConvertTo-Csv | Out-File $fajl
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled | ConvertTo-XML | Out-File $fajl
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled | ConvertTo-Json | Out-File $fajl
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled | ConvertTo-HTML | Out-File $fajl2
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled |  Out-File $fajl2 -Encoding utf8
+$users | Sort-Object Name | Select Name, DistinguishedName, Enabled | Export-Clixml $fajl
+
+
+Get-ADUser -Searchbase 'OU=IT,DC=Adatum,DC=com' -Filter * | Select Name, DistinguishedName, Enabled | Out-File $fajl
+Get-ADUser -Searchbase 'OU=Marketing,DC=Adatum,DC=com' -Filter * | Select Name, DistinguishedName, Enabled | Out-File $fajl -Append
+Get-ADUser -filter * | Where-Object {$PSItem.DistinguishedName -contains '*OU=IT,DC=Adatum,DC=com'}
