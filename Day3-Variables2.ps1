@@ -49,7 +49,7 @@ Get-ADUser -Properties * -Filter * |
     @{Label = "Email";Expression = {$_.Mail}}, 
     @{Label = "Manager";Expression = {%{(Get-AdUser $_.Manager -server $Server -Properties DisplayName).DisplayName}}}, 
     @{Label = "Account Status";Expression = {if (($_.Enabled -eq 'TRUE')  ) {'Enabled'} Else {'Disabled'}}}, # the 'if statement# replaces $_.Enabled 
-    @{Label = "Last LogOn Date";Expression = {$_.lastlogondate}} | Format-Table -AutoSize | Out-File c:\Backup\ad1.txt
+    @{Label = "Last LogOn Date";Expression = {$_.lastlogondate}} | Out-File c:\Backup\ad1.txt
 
 
 # Új VM hash táblában tárolt paraméterekből
