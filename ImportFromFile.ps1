@@ -1,0 +1,1 @@
+﻿$utvonal = "\\lon-cl1\E`$\Mod08\Democode\users.csv"
