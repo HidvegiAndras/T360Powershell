@@ -197,7 +197,10 @@ $users | Sort-Object Name | Select Name, DistinguishedName, Enabled | ConvertTo-
 $users | Sort-Object Name | Select Name, DistinguishedName, Enabled |  Out-File $fajl2 -Encoding utf8
 $users | Sort-Object Name | Select Name, DistinguishedName, Enabled | Export-Clixml $fajl
 
+# AD Userek több OU-ból
 
 Get-ADUser -Searchbase 'OU=IT,DC=Adatum,DC=com' -Filter * | Select Name, DistinguishedName, Enabled | Out-File $fajl
 Get-ADUser -Searchbase 'OU=Marketing,DC=Adatum,DC=com' -Filter * | Select Name, DistinguishedName, Enabled | Out-File $fajl -Append
-Get-ADUser -filter * | Where-Object {$PSItem.DistinguishedName -contains '*OU=IT,DC=Adatum,DC=com'}
+
+$ous = 'OU=IT,DC=Adatum,DC=com','OU=Marketing,DC=Adatum,DC=com'
+$ous | ForEach-Object { Get-ADUser -Filter * -SearchBase $PSItem } | Select Name, DistinguishedName, Enabled
